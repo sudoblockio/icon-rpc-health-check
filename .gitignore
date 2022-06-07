@@ -1,3 +1,4 @@
 env
 .idea
 .pytest-cache
+__pycache__
