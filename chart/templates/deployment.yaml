@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+{{ include "labels" . | indent 6 }}
+spec:
+  selector:
+    matchLabels:
+{{ include "selectorLabels" . | indent 6 }}
+  replicas: {{ .Values.deployment.replicas }}
+  template:
+    metadata:
+      {{- if .Values.deployment.annotations }}
+      annotations:
+{{ tpl .Values.deployment.annotations . | indent 8 }}
+      {{- end }}
+      labels:
+{{ include "labels" . | indent 8 }}
+    spec:
+    {{- if .Values.deployment.affinity }}
+      affinity:
+        {{ tpl .Values.deployment.affinity . | nindent 8 | trim }}
+    {{- end }}
+    {{- if .Values.deployment.tolerations }}
+      tolerations:
+        {{ tpl .Values.deployment.tolerations . | nindent 8 | trim }}
+    {{- end }}
+      {{- if .Values.deployment.priorityClassName }}
+      priorityClassName: {{ .Values.deployment.priorityClassName | quote }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.deployment.listenPort }}
+          env:
+            - name: HC_CHECK_HOST
+              value: {{ .Values.deployment.upstreamHost }}
+            - name: HC_LISTEN_PORT
+              value: {{ .Values.deployment.listenPort | quote }}
+            - name: HC_NETWORK_NAME
+              value: {{ .Values.deployment.networkName }}
+            - name: HC_REFERENCE_HOSTS
+              value: {{ .Values.deployment.referenceHosts }}
+            - name: HC_BLOCK_HEIGHT_THRESHOLD
+              value: {{ .Values.deployment.blockHeightThreshold | quote }}
+
+          resources:
+            requests:
+              cpu: {{ .Values.deployment.resources.requests.cpu }}
+              memory: {{ .Values.deployment.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.deployment.resources.limits.cpu }}
+              memory: {{ .Values.deployment.resources.limits.memory }}
+      {{- if .Values.deployment.nodeSelector }}
+      nodeSelector:
+        {{ tpl .Values.deployment.nodeSelector . | indent 8 | trim }}
+      {{- end }}

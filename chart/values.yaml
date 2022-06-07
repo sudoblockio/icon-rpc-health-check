@@ -1,0 +1,23 @@
+deployment:
+  image:
+    repository: geometrylabs/substrate-health-pod
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 1
+  annotations: null
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi
+  tolerations: ""
+  nodeSelector: null
+  affinity: null
+  priorityClassName: ""
+  upstreamHost: ""
+  listenPort: 8000
+  networkName: mainnet
+  referenceHosts: ""
+  blockHeightThreshold:
